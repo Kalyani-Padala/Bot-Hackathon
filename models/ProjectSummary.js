@@ -25,6 +25,7 @@ const ProjectSummarySchema = new mongoose.Schema({
     {
       ticket_key: String,
       owner: String,
+      blocker_description: String,
       days_blocked: Number
     }
   ],
@@ -39,6 +40,16 @@ const ProjectSummarySchema = new mongoose.Schema({
   // 🔹 Team Snapshot
   total_team_members_active_today: Number,
   avg_utilization_percent: Number,
+
+  individual_utilization: [
+  {
+    team_member: String,
+    role: String,
+    tickets_worked_on: Number,
+    story_points_handled: Number,
+    utilization_percent: Number
+  }
+],
 
   // 🔹 Health
   delivery_health: String,

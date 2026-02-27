@@ -151,7 +151,18 @@ Return STRICTLY valid JSON in this exact structure:
     {
       "ticket_key": "",
       "owner": "",
+      "blocker_description": "",
       "days_blocked": 0
+    }
+  ],
+  
+   "individual_utilization": [
+    {
+      "team_member": "",
+      "role": "",
+      "tickets_worked_on": 0,
+      "story_points_handled": 0,
+      "utilization_percent": 0
     }
   ],
 
