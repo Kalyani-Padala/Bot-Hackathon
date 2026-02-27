@@ -4,6 +4,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const { BotFrameworkAdapter } = require("botbuilder");
 const cron = require("node-cron");
+const generateReport = require("./report/report_generator");
+const fs = require("fs");
+const path = require("path");
  
 const { generateDailyProjectSummaries } = require("./services/summaryService");
 const { fetchJiraTickets } = require("./services/jiraService");
@@ -214,6 +217,36 @@ app.get("/generate-daily-summary", async (req, res) => {
       error: error.message
     });
   }
+});
+
+app.get("/getReport", async (req, res) => {
+    try {
+        const reportPath = await generateReport();
+        console.log("Generated report path:", reportPath);
+ 
+        if (!fs.existsSync(reportPath)) {
+            return res.status(500).send("PDF file not found");
+        }
+ 
+        // Send PDF inline
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+            "Content-Disposition",
+            `inline; filename="${path.basename(reportPath)}"`
+        );
+ 
+        res.sendFile(reportPath, (err) => {
+            if (err) {
+                console.error("Error sending PDF:", err);
+                res.status(500).send("Error sending PDF");
+            } else {
+                console.log("PDF sent successfully (inline)");
+            }
+        });
+    } catch (error) {
+        console.error("Error generating report:", error);
+        res.status(500).send("Error generating report");
+    }
 });
  
 /************************************************
