@@ -1,117 +1,201 @@
-const OpenAI = require("openai");
 
+const OpenAI = require("openai");
+ 
 const client = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
   baseURL: "https://api.groq.com/openai/v1"
 });
-
-const MODEL = "llama-3.1-8b-instant"; // ✅ centralized model
-
+ 
+const MODEL = "llama-3.1-8b-instant";
+ 
 /************************************************
-  1️⃣ Generate Standup Question Per Ticket
+  🔹 Conversation Stages
 *************************************************/
-const generateTicketQuestion = async (ticket) => {
+const STAGES = {
+  STATUS: "status",
+  BLOCKERS: "blockers",
+  NEXT_PLAN: "next_plan",
+  COMPLETE: "complete"
+};
+ 
+/************************************************
+  1️⃣ Generate Conversational Standup Question
+*************************************************/
+const generateTicketQuestion = async (ticket, stage, context = {}) => {
+ 
+  let instruction = "";
+ 
+  if (stage === STAGES.STATUS) {
+    instruction = `
+Ask ONLY about the current status of this ticket.
+Do NOT ask about blockers or next plan.
+Keep it concise.
+`;
+  }
+ 
+  if (stage === STAGES.BLOCKERS) {
+    instruction = `
+User current status:
+"${context.status}"
+ 
+Now ask ONLY about blockers.
+If status indicates completion, phrase naturally.
+Do NOT ask about next plan.
+`;
+  }
+ 
+  if (stage === STAGES.NEXT_PLAN) {
+    instruction = `
+User shared:
+Status: "${context.status}"
+Blockers: "${context.blockers}"
+ 
+Now ask ONLY about their next planned step.
+Keep it concise.
+`;
+  }
+ 
   const prompt = `
 You are conducting a professional daily standup.
-
-Generate ONE concise question that collects:
-- current status
-- blockers (if any)
-- next day plan
-
-The question MUST clearly mention:
-- Ticket Key
-- Ticket Title
-
+ 
+${instruction}
+ 
 Ticket Details:
 Key: ${ticket.ticket_key}
 Title: ${ticket.title}
 Priority: ${ticket.priority}
 Due Date: ${ticket.due_date}
-
+ 
 Return only the question.
+`;
+ 
+  const response = await client.chat.completions.create({
+    model: MODEL,
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.5
+  });
+ 
+  return response.choices[0].message.content.trim();
+};
+ 
+/************************************************
+  2️⃣ Process User Answer Deterministically
+*************************************************/
+const processStandupAnswer = (stage, answer, state) => {
+ 
+  if (stage === STAGES.STATUS) {
+    return {
+      nextStage: STAGES.BLOCKERS,
+      updatedState: {
+        ...state,
+        status: answer
+      }
+    };
+  }
+ 
+  if (stage === STAGES.BLOCKERS) {
+    return {
+      nextStage: STAGES.NEXT_PLAN,
+      updatedState: {
+        ...state,
+        blockers: answer
+      }
+    };
+  }
+ 
+  if (stage === STAGES.NEXT_PLAN) {
+    return {
+      nextStage: STAGES.COMPLETE,
+      updatedState: {
+        ...state,
+        next_plan: answer
+      }
+    };
+  }
+ 
+  return {
+    nextStage: STAGES.COMPLETE,
+    updatedState: state
+  };
+};
+ 
+//************************************************
+//   3️⃣ Generate Daily Executive Project Summary
+// *************************************************/
+const generateProjectSummary = async (projectName, updates) => {
+
+  const prompt = `
+You are a senior PMO executive assistant.
+
+Generate a concise DAILY executive project report
+from the provided ticket updates.
+
+Return STRICTLY valid JSON in this exact structure:
+
+{
+  "project_name": "${projectName}",
+  "sprint_name": "",
+  "overall_status": "",
+  "completion_percent": 0,
+
+  "total_updates_today": 0,
+  "tickets_completed_today": 0,
+  "tickets_in_progress": 0,
+  "tickets_in_todo":0,
+  "story_points_completed_today": 0,
+
+  "key_accomplishments": [],
+
+  "blocked_issues_count": 0,
+  "blocker_details": [
+    {
+      "ticket_key": "",
+      "owner": "",
+      "days_blocked": 0
+    }
+  ],
+
+  "new_risks_identified": [],
+  "escalations_required": false,
+
+  "next_day_focus": [],
+  "high_priority_tasks": [],
+
+  "total_team_members_active_today": 0,
+  "avg_utilization_percent": 0,
+
+  "delivery_health": "",
+  "quality_health": "",
+  "resource_health": "",
+  "overall_health_score": 0
+}
+
+Guidelines:
+- overall_status must be one of: "On Track", "At Risk", "Delayed"
+- delivery/quality/resource health must be: "Green", "Amber", or "Red"
+- completion_percent must be realistic based on updates
+- escalations_required must be true if major blockers exist
+- Keep accomplishments and next_day_focus concise executive bullets
+
+Ticket Updates:
+${JSON.stringify(updates, null, 2)}
+
+Return ONLY JSON. No explanation.
 `;
 
   const response = await client.chat.completions.create({
     model: MODEL,
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.7
-  });
-
-  return response.choices[0].message.content.trim();
-};
-
-/************************************************
-  2️⃣ Extract Structured Update
-*************************************************/
-const extractStructuredUpdate = async (ticket, answer) => {
-  const prompt = `
-Extract structured JSON for this ticket update.
-
-Ticket:
-Key: ${ticket.ticket_key}
-Title: ${ticket.title}
-
-Return JSON in this format:
-
-{
-  "status": "",
-  "blockers": "",
-  "next_plan": ""
-}
-
-User response:
-"${answer}"
-
-Return only JSON.
-`;
-
-  const response = await client.chat.completions.create({
-    model: MODEL,   // ✅ FIXED HERE
     messages: [{ role: "user", content: prompt }],
     temperature: 0.2
   });
 
   return JSON.parse(response.choices[0].message.content);
 };
-
-/************************************************
-  3️⃣ Generate Daily Executive Project Summary
-*************************************************/
-const generateProjectSummary = async (projectName, updates) => {
-  const prompt = `
-You are generating an executive daily project report.
-
-Analyze ticket updates and generate structured JSON:
-
-{
-  "project_name": "${projectName}",
-  "overall_status": "",
-  "completion_percent": 0,
-  "blocked_issues": 0,
-  "key_accomplishments": [],
-  "next_focus": [],
-  "major_risks": []
-}
-
-Ticket updates:
-${JSON.stringify(updates, null, 2)}
-
-Return only JSON.
-`;
-
-  const response = await client.chat.completions.create({
-    model: MODEL,
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.3
-  });
-
-  return JSON.parse(response.choices[0].message.content);
-};
-
 module.exports = {
+  STAGES,
   generateTicketQuestion,
-  extractStructuredUpdate,
+  processStandupAnswer,
   generateProjectSummary
 };
+ 
 
