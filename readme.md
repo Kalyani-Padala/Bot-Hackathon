@@ -53,6 +53,7 @@ The system performs two major responsibilities:
 
 User → Bot Framework → Jira Service → LLM Service → MongoDB → Executive Summary
 
+
 ## B) Automated Reporting Flow
 
 Jira → Report Generator → PDF File → HTTP Endpoint → Power Automate →  
@@ -215,5 +216,6 @@ The manager automatically receives:
 
 This eliminates manual daily reporting.
 
+<img width="150" height="300" alt="image" src="https://github.com/user-attachments/assets/d464da8a-cc04-4a8f-b8fe-52e0d00e95ce" />
 
 
