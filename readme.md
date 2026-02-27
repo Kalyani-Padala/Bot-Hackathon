@@ -1,4 +1,4 @@
-# Bot-Hackathon
+# DailyFlow AI
 
 An AI-powered Jira Standup & Project Reporting System that:
 
