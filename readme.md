@@ -1,4 +1,4 @@
-# Bot-Hackathon
+# DailyFlow AI
 
 An AI-powered Jira Standup & Project Reporting System that:
 
@@ -53,6 +53,7 @@ The system performs two major responsibilities:
 
 User → Bot Framework → Jira Service → LLM Service → MongoDB → Executive Summary
 
+
 ## B) Automated Reporting Flow
 
 Jira → Report Generator → PDF File → HTTP Endpoint → Power Automate →  
@@ -82,7 +83,6 @@ Bot-Hackathon/
 │
 ├── index.js                 # Application entry point
 ├── mongodb.js               # MongoDB connection
-├── .env
 ├── .env.example
 ├── .gitignore
 ├── package.json
@@ -130,7 +130,7 @@ npm install
 
 ---
 
-# ▶ Running the Application
+## ▶ Running the Application
 
 Start the server:
 
@@ -138,7 +138,7 @@ Start the server:
 npm start
 ```
 
-Server runs on:
+Server runs at:
 
 ```
 http://localhost:3978
@@ -146,24 +146,25 @@ http://localhost:3978
 
 ---
 
-# 🔌 Available Endpoints
+## 🔌 Available Endpoints
 
 ### Bot Webhook
 
 ```
-POST /api/messages
+http://localhost:3978/api/messages
 ```
 
 Used by Microsoft Bot Framework to process user conversations.
 
-### Manual Summary Endpoint
+---
+
+### Manual Summary Trigger
 
 ```
-GET /generate-daily-summary
+http://localhost:3978/generate-daily-summary
 ```
 
 Triggers daily project summary generation.
-
 ---
 
 # 📊 Report Generation Module
@@ -215,5 +216,6 @@ The manager automatically receives:
 
 This eliminates manual daily reporting.
 
+<img width="150" height="300" alt="image" src="https://github.com/user-attachments/assets/d464da8a-cc04-4a8f-b8fe-52e0d00e95ce" />
 
 
