@@ -83,7 +83,6 @@ Bot-Hackathon/
 │
 ├── index.js                 # Application entry point
 ├── mongodb.js               # MongoDB connection
-├── .env
 ├── .env.example
 ├── .gitignore
 ├── package.json
