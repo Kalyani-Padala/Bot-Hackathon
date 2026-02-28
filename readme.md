@@ -130,7 +130,7 @@ npm install
 
 ---
 
-# ▶ Running the Application
+## ▶ Running the Application
 
 Start the server:
 
@@ -138,7 +138,7 @@ Start the server:
 npm start
 ```
 
-Server runs on:
+Server runs at:
 
 ```
 http://localhost:3978
@@ -146,15 +146,25 @@ http://localhost:3978
 
 ---
 
-# 🔌 Available Endpoints
+## 🔌 Available Endpoints
 
 ### Bot Webhook
 
 ```
-POST /api/messages
+http://localhost:3978/api/messages
 ```
 
 Used by Microsoft Bot Framework to process user conversations.
+
+---
+
+### Manual Summary Trigger
+
+```
+http://localhost:3978/generate-daily-summary
+```
+
+Triggers daily project summary generation.
 
 ### Manual Summary Endpoint
 
