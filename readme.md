@@ -106,7 +106,16 @@ Stores aggregated project-level summary data.
 
 ---
 
-# ⚙ Environment Setup
+# 📦 Installation
+
+Clone the repository and install dependencies:
+
+```bash
+git clone <repository-url>
+cd Bot-Hackathon
+npm install
+```
+## ⚙ Environment Setup
 
 Create a `.env` file in the root directory:
 
@@ -120,21 +129,11 @@ JIRA_API_TOKEN=your_jira_api_token
 GROQ_API_KEY=your_llm_api_key
 ```
 
-# 📦 Installation
-
-Clone the repository and install dependencies:
-
-```bash
-git clone <repository-url>
-cd Bot-Hackathon
-npm install
-```
-
----
-
 ## ▶ Running the Application
 
-Start the server:
+The application entry point is `index.js`.
+
+Start the server using:
 
 ```bash
 npm start
