@@ -34,6 +34,7 @@ The system performs two major responsibilities:
 ---
 
 # 🏗 Architecture
+![Architecture Diagram](Architecture_Diagram.png)
 
 ## Core Components
 
@@ -81,6 +82,7 @@ Bot-Hackathon/
 │
 ├── reports/                 # Generated PDF reports are stored here
 │
+├── Architecture_Diagram.png  # System architecture diagram
 ├── index.js                 # Application entry point
 ├── mongodb.js               # MongoDB connection
 ├── .env.example
