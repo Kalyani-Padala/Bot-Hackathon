@@ -158,6 +158,7 @@ Used by Microsoft Bot Framework to process user conversations.
 
 ---
 
+
 ### Manual Summary Trigger
 
 ```
@@ -165,11 +166,14 @@ http://localhost:3978/generate-daily-summary
 ```
 
 Triggers daily project summary generation.
+
 ---
 
-# 📊 Report Generation Module
+## 📊 Report Generation Module
 
-The `report/report_generator.js` module:
+The `report/report_generator.js` module is responsible for generating the project-level daily report.
+
+It performs the following steps:
 
 - Fetches Jira tickets per project  
 - Filters today's activity  
@@ -180,7 +184,14 @@ The `report/report_generator.js` module:
   - Blockers  
 - Builds structured project summary  
 - Converts summary into PDF  
-- Saves file in `/reports` directory  
+- Saves the generated file inside the `/reports` directory  
+
+### Report Endpoint (Manual Trigger)
+
+```
+http://localhost:3978/getReport
+```
+You can manually generate and view the report in the browser 
 
 ---
 
@@ -199,14 +210,19 @@ The PDF is generated automatically and made available for distribution.
 
 ---
 
-# 🔁 Power Automate Integration
+## 🔁 Power Automate Integration
 
-Power Automate Flow:
+The reporting workflow is automated using Microsoft Power Automate.
 
-1. Recurrence Trigger (Scheduled)
-2. HTTP Request → Calls backend report endpoint
+### Trigger:
+- Recurrence Trigger (Scheduled Daily Execution)
+
+### Flow:
+
+1. Recurrence Trigger (Runs at scheduled time)
+2. HTTP Request → Calls `/getReport`
 3. Create File (OneDrive / SharePoint)
-4. Create Share Link
+4. Generate Share Link
 5. Post Message in Microsoft Teams
 
 The manager automatically receives:
