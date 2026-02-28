@@ -165,15 +165,6 @@ http://localhost:3978/generate-daily-summary
 ```
 
 Triggers daily project summary generation.
-
-### Manual Summary Endpoint
-
-```
-GET /generate-daily-summary
-```
-
-Triggers daily project summary generation.
-
 ---
 
 # 📊 Report Generation Module
